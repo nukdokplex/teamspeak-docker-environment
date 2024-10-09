@@ -1,0 +1,33 @@
+version: '3.9'
+
+services:
+  ts_server:
+    build:
+      context: ./ts_server
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - 9987:9987/udp
+      - 10011:10011
+      - 30033:30033
+    environment:
+      TS3SERVER_DB_PLUGIN: ts3db_mariadb
+      TS3SERVER_DB_SQLCREATEPATH: create_mariadb
+      TS3SERVER_DB_HOST: db
+      TS3SERVER_DB_USER: ${DATABASE_USER}
+      TS3SERVER_DB_PASSWORD: ${DATABASE_PASSWORD}
+      TS3SERVER_DB_NAME: ${DATABASE_NAME}
+      TS3SERVER_DB_WAITUNTILREADY: 30
+      TS3SERVER_LICENSE: accept
+    volumes:
+      - "./data/ts:/var/ts3server:rw"
+  db:
+    image: mariadb:11.5
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DATABASE_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${DATABASE_NAME}
+      MARIADB_USER: ${DATABASE_USER}
+      MARIADB_PASSWORD: ${DATABASE_PASSWORD}
+    volumes:
+      - "./data/db:/var/lib/mysql:rw"
